@@ -2,6 +2,7 @@ package WeLog
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -35,11 +36,14 @@ func New(apiURL, machineID, environment, serviceName string) *WeLog {
 }
 
 // Topic envia um log para a API
-func (l *WeLog) Topic(topic string, data interface{}) error {
+func (l *WeLog) Topic(topic string, data string) error {
+	// Converte os dados para base64
+	dataBase64 := base64.StdEncoding.EncodeToString([]byte(data))
+
 	// Cria um novo objeto LogData com os dados do log
 	logData := &LogData{
 		Topic:   topic,
-		Data:    data,
+		Data:    dataBase64,
 		Machine: l.MachineID,
 		Env:     l.Environment,
 		Service: l.ServiceName,
