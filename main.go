@@ -7,42 +7,42 @@ import (
 	"net/http"
 )
 
-type logger struct {
+type Logger struct {
 	url         string
 	env         string
 	machineId   string
 	serviceName string
 }
 
-func (l *logger) topic(topic string) *valueLogger {
-	return &valueLogger{
+func (l *Logger) topic(topic string) *ValueLogger {
+	return &ValueLogger{
 		topic:  topic,
 		logger: l,
 	}
 }
 
-type valueLogger struct {
+type ValueLogger struct {
 	topic  string
 	value  string
-	logger *logger
+	logger *Logger
 }
 
-func (vl *valueLogger) setvalue(value string) *printLogger {
-	return &printLogger{
+func (vl *ValueLogger) setvalue(value string) *PrintLogger {
+	return &PrintLogger{
 		topic:  vl.topic,
 		value:  value,
 		logger: vl.logger,
 	}
 }
 
-type printLogger struct {
+type PrintLogger struct {
 	topic  string
 	value  string
 	err    error
-	logger *logger
+	logger *Logger
 }
 
-func (pl *printLogger) print() {
+func (pl *PrintLogger) print() {
 	if pl.err != nil {
 		fmt.Println("Erro ao enviar log para o servidor:", pl.err)
 	} else {
@@ -50,7 +50,7 @@ func (pl *printLogger) print() {
 	}
 }
 
-func (pl *printLogger) send() *printLogger {
+func (pl *PrintLogger) send() *PrintLogger {
 	logData := map[string]string{
 		"topic":       pl.topic,
 		"value":       pl.value,
@@ -78,8 +78,8 @@ func (pl *printLogger) send() *printLogger {
 	return pl
 }
 
-func Config(url, env, machineId, serviceName string) *logger {
-	return &logger{
+func Config(url, env, machineId, serviceName string) *Logger {
+	return &Logger{
 		url:         url,
 		env:         env,
 		machineId:   machineId,
