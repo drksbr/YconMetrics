@@ -1,6 +1,11 @@
 package yconmetrics
 
-import "fmt"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
 
 type logger struct {
 	url         string
@@ -46,16 +51,30 @@ func (pl *printLogger) print() {
 }
 
 func (pl *printLogger) send() *printLogger {
-	// aqui você pode enviar o log para o servidor usando o método POST para a url do logger
-	// o conteúdo do log pode ser enviado como um JSON no corpo da requisição, por exemplo:
-	// {
-	//   "topic": pl.topic,
-	//   "value": pl.value,
-	//   "env": pl.logger.env,
-	//   "machineid": pl.logger.machineId,
-	//   "servicename: pl.logger.serviceName,
-	// }
-	pl.err = nil
+	logData := map[string]string{
+		"topic":       pl.topic,
+		"value":       pl.value,
+		"env":         pl.logger.env,
+		"machineid":   pl.logger.machineId,
+		"servicename": pl.logger.serviceName,
+	}
+
+	logDataBytes, err := json.Marshal(logData)
+	if err != nil {
+		pl.err = err
+		return pl
+	}
+
+	resp, err := http.Post(pl.logger.url, "application/json", bytes.NewBuffer(logDataBytes))
+	if err != nil {
+		pl.err = err
+		return pl
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		pl.err = fmt.Errorf("erro ao enviar log: código de status %d", resp.StatusCode)
+	}
 	return pl
 }
 
