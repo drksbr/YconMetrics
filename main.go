@@ -1,4 +1,4 @@
-package WeLog
+package main
 
 import (
 	"bytes"
@@ -282,6 +282,8 @@ func (l *WeLog) Topic(topic string, data interface{}) error {
 		return fmt.Errorf("erro ao converter dados para JSON: %v", err)
 	}
 
+	fmt.Printf("%+s\n", jsonLogData)
+
 	// Envia a solicitação HTTP POST para a API
 	_, err = http.Post(l.APIURL, "application/json", bytes.NewBuffer(jsonLogData))
 	if err != nil {
@@ -293,7 +295,7 @@ func (l *WeLog) Topic(topic string, data interface{}) error {
 
 func (l *WeLog) Resources(i time.Duration) error {
 	res := getSystemData(i)
-	l.Topic("resources", res)
+	l.Topic("resource", res)
 	return nil
 }
 
@@ -302,3 +304,9 @@ func (l *WeLog) ResourcesDaemon(i time.Duration) {
 		l.Resources(i)
 	}
 }
+
+// func main() {
+// 	welog := New("https://metrics.ycon.app/api/v1/metric", "dev", "test")
+// 	go welog.ResourcesDaemon(1)
+// 	// select {}
+// }
