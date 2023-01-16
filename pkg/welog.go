@@ -24,6 +24,7 @@ type WeLog struct {
 	MachineID   string
 	Environment string
 	ServiceName string
+	LocalIP     string
 }
 
 // LogData é a estrutura dos dados do log que serão enviados para a API
@@ -33,6 +34,7 @@ type LogData struct {
 	Machine string      `json:"machineid"`
 	Env     string      `json:"env"`
 	Service string      `json:"servicename"`
+	Ipaddr  string      `json:"ipaddr"`
 }
 
 type NetUsage struct {
@@ -241,7 +243,7 @@ func getMachineHash() (string, error) {
 }
 
 // New cria uma nova instância da biblioteca de log
-func New(apiURL, environment, serviceName string) *WeLog {
+func New(apiURL, environment, serviceName, LocalIP string) *WeLog {
 
 	machineID, err := getMachineHash()
 	if err != nil {
@@ -253,6 +255,7 @@ func New(apiURL, environment, serviceName string) *WeLog {
 		MachineID:   machineID,
 		Environment: environment,
 		ServiceName: serviceName,
+		LocalIP:     LocalIP,
 	}
 }
 
@@ -274,6 +277,7 @@ func (l *WeLog) Topic(topic string, data interface{}) error {
 		Machine: l.MachineID,
 		Env:     l.Environment,
 		Service: l.ServiceName,
+		Ipaddr:  l.LocalIP,
 	}
 
 	// Converte o objeto LogData para JSON
