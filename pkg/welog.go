@@ -286,8 +286,6 @@ func (l *WeLog) Topic(topic string, data interface{}) error {
 		return fmt.Errorf("erro ao converter dados para JSON: %v", err)
 	}
 
-	fmt.Printf("%+s\n", jsonLogData)
-
 	// Envia a solicitação HTTP POST para a API
 	_, err = http.Post(l.APIURL, "application/json", bytes.NewBuffer(jsonLogData))
 	if err != nil {
