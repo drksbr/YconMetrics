@@ -295,6 +295,36 @@ func (l *WeLog) Topic(topic string, data interface{}) error {
 	return nil
 }
 
+// Topic envia um log para a API
+func (l *WeLog) TopicRaw(topic string, data string) error {
+	// Converte a string para base64
+	dataBase64 := base64.StdEncoding.EncodeToString([]byte(data))
+
+	// Cria um novo objeto LogData com os dados do log
+	logData := &LogData{
+		Topic:   topic,
+		Data:    dataBase64,
+		Machine: l.MachineID,
+		Env:     l.Environment,
+		Service: l.ServiceName,
+		Ipaddr:  l.LocalIP,
+	}
+
+	// Converte o objeto LogData para JSON
+	jsonLogData, err := json.Marshal(logData)
+	if err != nil {
+		return fmt.Errorf("erro ao converter dados para JSON: %v", err)
+	}
+
+	// Envia a solicitação HTTP POST para a API
+	_, err = http.Post(l.APIURL, "application/json", bytes.NewBuffer(jsonLogData))
+	if err != nil {
+		return fmt.Errorf("erro ao enviar solicitação HTTP POST: %v", err)
+	}
+
+	return nil
+}
+
 func (l *WeLog) Resources(i time.Duration) error {
 	res := getSystemData(i)
 	l.Topic("resource", res)
